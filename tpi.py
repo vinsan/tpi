@@ -62,16 +62,13 @@ def tpi(g):
      k = {}
      N = {}
      nodes = g.Nodes()
-     print("Inizializzo")
      for node in nodes:	#2
           id = node.GetId()
           s[id] = 0.0	#3
           W[id] = node
           delta[id] = float(node.GetDeg())	#4
           k[id] = g.GetIntAttrDatN(id, "threshold")	#5
-     print("Creo i vicini")
      N = neighbor(g)	#6
-     print("Entro nel ciclo")
      while(len(W)>0):	#7
           v = computeValue(W, k, delta, g)	#8
           if v[0] != None:
@@ -86,7 +83,6 @@ def tpi(g):
               for u in neighbors:	#15
                     delta[u] = delta[u]-1	#16
               W.pop(v)
-     print("Termino TPI")
      return s 
 
 def sol_size(sol):
@@ -105,9 +101,7 @@ def execute_test():
     g = GraphTools.deferred_decisions_with_uniform_probability(g)
     print('After Deferred decision Nodes: %d, Edges: %d' % (g.GetNodes(), g.GetEdges()))
     g = GraphTools.constant_threshold_assignment(g, 2)
-    print("Start TPI")
     s = tpi(g)
-    print("End TPI")
     sol_size(s)
 
 
