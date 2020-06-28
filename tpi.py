@@ -14,7 +14,6 @@ def test_graph_2():
     G2 = snap.TUNGraph.New()
     for i in range(0, 10):
         G2.AddNode(i)
-        print(str(i))
     G2.AddEdge(0,1)
     G2.AddEdge(0,3)
     G2.AddEdge(3,4)
@@ -59,7 +58,7 @@ def argmax(W, k, delta, g):
                max = newValue
      return arg, index
 
-def tpi(g, threshold):
+def tpi(g):
      s = {}	#1
      W = {}
      delta = {}
@@ -71,7 +70,7 @@ def tpi(g, threshold):
           s[id] = 0.0	#3
           W[id] = node
           delta[id] = float(node.GetDeg())	#4
-          k[id] = threshold[id]	#5
+          k[id] = g.GetIntAttrDatN(id, "threshold")	#5
           N[id] = neighbor(g, id)	#6
      while(len(W)>0):	#7
           v = exist(W, k, delta, g)	#8
@@ -95,20 +94,27 @@ def tpi(g, threshold):
               W.pop(v[1])
      return s 
 
+def sol_size(sol):
+    activeNodes = 0
+    totalIncentive = 0
+    for n in sol:
+        if(sol[n]>0):
+            activeNodes = activeNodes+1
+            totalIncentive = totalIncentive+sol[n]
+    print("Number of nodes with incentive: "+str(activeNodes)+", Total Incentive: "+str(totalIncentive))
+
 def test():
      g1 = test_graph_1()
      print('Graph Nodes: %d, Edges: %d' % (g1.GetNodes(), g1.GetEdges()))
      g1 =GraphTools.deferred_decisions_with_uniform_probability(g1)
      g1 = GraphTools.constant_threshold_assignment(g1, 2)
      print('After Deferred decision Nodes: %d, Edges: %d' % (g1.GetNodes(), g1.GetEdges()))
-     s1 = tpi(g1, {1:1.0, 2:1.0, 3:1.0, 4:1.0, 5:1.0, 6:6.0, 7:6.0})
-     for item in s1:
-          print("s"+str(item)+": "+str(s1[item]))
+     s1 = tpi(g1)
+     sol_size(s1)
      g2 = test_graph_2()
      print('Graph Nodes: %d, Edges: %d' % (g2.GetNodes(), g2.GetEdges()))
      g2 =GraphTools.deferred_decisions_with_uniform_probability(g2)
      g2 = GraphTools.constant_threshold_assignment(g2, 2)
      print('After Deferred decision Nodes: %d, Edges: %d' % (g2.GetNodes(), g2.GetEdges()))
-     s2 = tpi(g2, {0:1.0, 1:1.0, 2:1.0, 3:2.0, 4:1.0, 5:3.0, 6:2.0, 7:1.0, 8:2.0, 9:6.0})
-     for item in s2:
-          print("s"+str(item)+": "+str(s2[item]))
+     s2 = tpi(g2)
+     sol_size(s2)
