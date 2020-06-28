@@ -95,14 +95,26 @@ def sol_size(sol):
     print("Number of nodes with incentive: "+str(activeNodes)+", Total Incentive: "+str(totalIncentive))
     return activeNodes, totalIncentive
 
-def execute_test():
+def load_graph():
     g = GraphTools.load_graph_from_txt("com-youtube.ungraph.txt")
     print('Graph Nodes: %d, Edges: %d' % (g.GetNodes(), g.GetEdges()))
-    g = GraphTools.deferred_decisions_with_uniform_probability(g)
+    return g
+    
+
+def deferred_decision_uniform():
+    g = GraphTools.deferred_decisions_with_uniform_probability(load_graph())
     print('After Deferred decision Nodes: %d, Edges: %d' % (g.GetNodes(), g.GetEdges()))
-    g = GraphTools.constant_threshold_assignment(g, 2)
-    s = tpi(g)
-    sol_size(s)
+    return g
+
+def deferred_decision_proportional():
+    g = GraphTools.deferred_decisions_with_proportional_to_the_degree(load_graph())
+    print('After Deferred decision Nodes: %d, Edges: %d' % (g.GetNodes(), g.GetEdges()))
+    return g
+
+def execute_test():
+   g = GraphTools.constant_threshold_assignment(deferred_decision_uniform(), 2)
+   s = tpi(g)
+   sol_size(s)
 
 
 def test():
