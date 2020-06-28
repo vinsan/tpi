@@ -3,10 +3,10 @@ import GraphTools
 
 def test_graph_1():
     G1 = snap.TUNGraph.New()
-    for i in range(1,8):
+    for i in range(0,7):
          G1.AddNode(i)
-    for i in range(1, 8):
-         for j in range(i+1, 8):
+    for i in range(0, 7):
+         for j in range(i+1, 7):
               G1.AddEdge(i,j)
     return G1
 
@@ -31,32 +31,29 @@ def test_graph_2():
     return G2
     
 
-def neighbor(g, nodeID):
-     N = []
-     for nodes in g.Nodes():
-          if(nodes.IsNbrNId(nodeID)):
-               N.append((nodes.GetId(), nodes))
+def neighbor(g):
+     N = {}
+     for NI in g.Nodes():
+         k = []
+         for Id in NI.GetOutEdges():
+             k.append(Id)
+         N[NI.GetId()] = k
      return N
 
-def exist(W, k , delta, g):
-     for node in W:
-          t = k[node]
-          d = delta[node]
-          if t > d:
-              return node, W[node]
-     return None
-
-def argmax(W, k, delta, g):
-     arg = None
-     index = -1
-     max = -1
-     for node in W:
-          newValue = (k[node]*(k[node]+1))/(delta[node]*(delta[node]+1))
-          if max < newValue:
-               arg = W[node]
-               index = node;
-               max = newValue
-     return arg, index
+def computeValue(W, k, delta, g):
+    index = -1
+    max = -1
+    for node in W:
+        t = k[node]
+        d = delta[node]
+        if t > d:
+            return node, None
+        if(d!=0):
+            newValue = (t*(t+1))/(d*(d+1))
+            if max < newValue:
+                index = node
+                max = newValue
+    return None, index   
 
 def tpi(g):
      s = {}	#1
@@ -65,33 +62,31 @@ def tpi(g):
      k = {}
      N = {}
      nodes = g.Nodes()
+     print("Inizializzo")
      for node in nodes:	#2
           id = node.GetId()
           s[id] = 0.0	#3
           W[id] = node
           delta[id] = float(node.GetDeg())	#4
           k[id] = g.GetIntAttrDatN(id, "threshold")	#5
-          N[id] = neighbor(g, id)	#6
+     print("Creo i vicini")
+     N = neighbor(g)	#6
+     print("Entro nel ciclo")
      while(len(W)>0):	#7
-          v = exist(W, k, delta, g)	#8
-          if v != None:
-              id = v[0]
-              sol = s[id]+k[id]-delta[id]
-              s[id] = sol	#9
-              k[id] = delta[id]	#10
-              if(k[id]==0):	#11
-                    W.pop(v[0])	#12
+          v = computeValue(W, k, delta, g)	#8
+          if v[0] != None:
+              v = v[0]
+              s[v] = s[v]+k[v]-delta[v]	#9
+              k[v] = delta[v]	#10
+              if(k[v]==0):	#11
+                    W.pop(v)	#12
           else:	#13
-              v = argmax(W, k, delta, g)	#14
-              id = v[1]
-              neighbors = N[id]
+              v = v[1]	#14
+              neighbors = N[v]
               for u in neighbors:	#15
-                    index = u[0]
-                    delta[index] = delta[index]-1	#16
-                    nu = neighbor(g, u[0])
-                    nu.remove((v[1], v[0]))
-                    N[index] = nu	#17
-              W.pop(v[1])
+                    delta[u] = delta[u]-1	#16
+              W.pop(v)
+     print("Termino TPI")
      return s 
 
 def sol_size(sol):
@@ -110,7 +105,9 @@ def execute_test():
     g = GraphTools.deferred_decisions_with_uniform_probability(g)
     print('After Deferred decision Nodes: %d, Edges: %d' % (g.GetNodes(), g.GetEdges()))
     g = GraphTools.constant_threshold_assignment(g, 2)
+    print("Start TPI")
     s = tpi(g)
+    print("End TPI")
     sol_size(s)
 
 
