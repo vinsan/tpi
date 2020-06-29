@@ -52,8 +52,8 @@ def tpi(g):
               neighbors = N[v]
               for u in neighbors:	#15
                     delta[u] = delta[u]-1	#16
-              W.pop(v)
-     return s 
+              W.pop(v) #18
+     return s #19
 
 def sol_size(sol):
     activeNodes = 0
