@@ -50,6 +50,8 @@ def proportional_to_the_degree_threshold_assignment(g):
         value = 5
         if deg > 0:
             value = int((1 /(deg + value)) * (g.GetEdges() / g.GetNodes()))
+            if value == 0:
+                value = 5
         g.AddIntAttrDatN(n.GetId(), value, "threshold")
     return g
 
