@@ -1,36 +1,6 @@
 import snap
 import GraphTools
 
-def test_graph_1():
-    G1 = snap.TUNGraph.New()
-    for i in range(0,7):
-         G1.AddNode(i)
-    for i in range(0, 7):
-         for j in range(i+1, 7):
-              G1.AddEdge(i,j)
-    return G1
-
-def test_graph_2():
-    G2 = snap.TUNGraph.New()
-    for i in range(0, 10):
-        G2.AddNode(i)
-    G2.AddEdge(0,1)
-    G2.AddEdge(0,3)
-    G2.AddEdge(3,4)
-    G2.AddEdge(4,5)
-    G2.AddEdge(5,2)
-    G2.AddEdge(5,6)
-    G2.AddEdge(5,7)
-    G2.AddEdge(7,8)
-    G2.AddEdge(9,1)
-    G2.AddEdge(9,2)
-    G2.AddEdge(9,3)
-    G2.AddEdge(9,6)
-    G2.AddEdge(9,7)
-    G2.AddEdge(9,8)
-    return G2
-    
-
 def neighbor(g):
      N = {}
      for NI in g.Nodes():
@@ -111,24 +81,58 @@ def deferred_decision_proportional():
     print('After Deferred decision Nodes: %d, Edges: %d' % (g.GetNodes(), g.GetEdges()))
     return g
 
-def execute_test():
+def uniform_constant():
    g = GraphTools.constant_threshold_assignment(deferred_decision_uniform(), 2)
    s = tpi(g)
-   sol_size(s)
+   return sol_size(s)
+
+def uniform_proportional():
+    g = GraphTools.proportional_to_the_degree_threshold_assignment(deferred_decision_uniform())
+    s = tpi(g)
+    return sol_size(s)
+
+def uniform_random():
+    g = GraphTools.random_threshold_assignment(deferred_decision_uniform())
+    s = tpi(g)
+    return sol_size(s)
+
+def proportional_constant():
+   g = GraphTools.constant_threshold_assignment(deferred_decision_proportional(), 2)
+   s = tpi(g)
+   return sol_size(s)
+
+def proportional_proportional():
+    g = GraphTools.proportional_to_the_degree_threshold_assignment(deferred_decision_proportional())
+    s = tpi(g)
+    return sol_size(s)
+
+def proportional_random():
+    g = GraphTools.random_threshold_assignment(deferred_decision_proportional())
+    s = tpi(g)
+    return sol_size(s)
+
+def ten_iteration(func):
+    size = 0
+    incentive = 0
+    for i in range(0,10):
+        sol = func()
+        size = size+sol[0]
+        incentive = size+sol[1]
+    size = size/10
+    incentive = incentive/10
+    return size, incentive
 
 
 def test():
-     g1 = test_graph_1()
-     print('Graph Nodes: %d, Edges: %d' % (g1.GetNodes(), g1.GetEdges()))
-     g1 =GraphTools.deferred_decisions_with_uniform_probability(g1)
-     g1 = GraphTools.constant_threshold_assignment(g1, 2)
-     print('After Deferred decision Nodes: %d, Edges: %d' % (g1.GetNodes(), g1.GetEdges()))
-     s1 = tpi(g1)
-     sol_size(s1)
-     g2 = test_graph_2()
-     print('Graph Nodes: %d, Edges: %d' % (g2.GetNodes(), g2.GetEdges()))
-     g2 =GraphTools.deferred_decisions_with_uniform_probability(g2)
-     g2 = GraphTools.constant_threshold_assignment(g2, 2)
-     print('After Deferred decision Nodes: %d, Edges: %d' % (g2.GetNodes(), g2.GetEdges()))
-     s2 = tpi(g2)
-     sol_size(s2)
+    print("Deferred Decision Uniform - Constant Threshold Assignment")
+    ten_iteration(uniform_constant)
+    print("Deferred Decision Uniform - Proportional Threshold Assignment")
+    ten_iteration(uniform_proportional)
+    print("Deferred Decision Uniform - Random Threshold Assignment")
+    ten_iteration(uniform_random)
+    print("Deferred Decision Proportional - Constant Threshold Assignment")
+    ten_iteration(proportional_constant)
+    print("Deferred Decision Proportional - Proportional Threshold Assignment")
+    ten_iteration(proportional_proportional)
+    print("Deferred Decision Proportional - Random Threshold Assignment")
+    ten_iteration(proportional_random)
